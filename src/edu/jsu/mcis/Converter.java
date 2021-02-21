@@ -68,7 +68,47 @@ public class Converter {
             Iterator<String[]> iterator = full.iterator();
             
             // INSERT YOUR CODE HERE
+
+            JSONArray c_header = new JSONArray();
             
+            String column_header[] = iterator.next();
+            int c = 0;
+            while(c < column_header.length)
+            {
+                c_header.add(column_header[c]);
+                c++;
+            }
+            
+            String[] ind_line;
+            
+            JSONArray r_header = new JSONArray();
+            
+            JSONArray data = new JSONArray();
+            
+            JSONObject students = new JSONObject();
+
+            
+            while (iterator.hasNext()){
+                int i = 1;
+                ind_line = iterator.next();
+                r_header.add(ind_line[0]);
+                JSONArray ldata = new JSONArray();
+                while(i < ind_line.length)
+                {                    
+                    ldata.add(Integer.parseInt(ind_line[i]));
+                    i++;
+                }
+                data.add(ldata);
+            }
+
+           
+            students.put("colHeaders", c_header);
+            students.put("rowHeaders", r_header);
+            students.put("data", data);
+            
+
+            results = JSONValue.toJSONString(students);
+
         }        
         catch(Exception e) { return e.toString(); }
         
@@ -87,8 +127,170 @@ public class Converter {
             
             // INSERT YOUR CODE HERE
             
-        }
-        
+           JSONParser parser = new JSONParser();
+           JSONObject jsonobject = (JSONObject)parser.parse(jsonString);
+           
+           JSONArray listh = new JSONArray();       //for entire string
+           //col.add(jsonobject.get("colHeaders"));
+           
+           String col = jsonobject.get("colHeaders").toString();
+           String nobr = col.substring(1, (col.length() - 1));
+           //String column[] = nobr.split(",");
+           listh.add(nobr);
+           //writer.append(nobr);
+           
+           
+           String[] keys = nobr.split(",");
+           
+           int d = 0;
+           
+           while(d < keys.length)
+           {
+               if(keys[d].contains("\""))
+               {
+                   int start = keys[d].indexOf("\"");
+                   keys[d] = keys[d].substring((start + 1));
+                   
+                   if(keys[d].contains("\""))
+                   {
+                       int last = keys[d].indexOf("\"");
+                       keys[d] = keys[d].substring(0, (last));
+                   }
+               }
+               //writer.append(keys[d]);
+               d++;
+           }
+           //writer.append("hhhh");
+           
+           //results = writer.toString();
+           csvWriter.writeNext(keys);
+
+           //System.out.println(writer);
+                   
+           String rowh = jsonobject.get("rowHeaders").toString();
+           String rowbr = rowh.substring(1, (rowh.length() - 1));
+           String[] rowhead = rowbr.split(",");
+           
+           int e = 0;
+           
+           while(e < rowhead.length)
+           {
+               if(rowhead[e].contains("\""))
+               {
+                   int beg = rowhead[e].indexOf("\"");
+                   rowhead[e] = rowhead[e].substring((beg + 1));
+                   
+                   if(rowhead[e].contains("\""))
+                   {
+                       int end = rowhead[e].indexOf("\"");
+                       rowhead[e] = rowhead[e].substring(0, end);
+                   }
+               }
+               e++;
+           }
+
+           String dataj = jsonobject.get("data").toString();
+           String datarr[] = dataj.split(",");
+           int y = 0;
+           while(y < datarr.length)
+           {
+                
+                if(datarr[y].contains("["))
+                {
+                    int remove = datarr[y].indexOf("[");
+                    datarr[y] = datarr[y].substring((remove + 1));
+                    if(datarr[y].contains("["))
+                    {
+                        remove = datarr[y].indexOf("[");
+                        datarr[y] = datarr[y].substring((remove + 1));
+                    }
+                }
+                else if(datarr[y].contains("]"))
+                {
+
+                    int r = datarr[y].indexOf("]");
+                    datarr[y] = datarr[y].substring(0, r);
+                }
+                y++;
+           }           
+           
+           int h = 0;
+           int j = 0;
+           String line[] = new String[5];
+           while(h < datarr.length)
+           {
+
+               line[0] = rowhead[j];
+               
+               line[1] = datarr[h];
+               h++;
+               line[2] = datarr[h];
+               h++;
+               line[3] = datarr[h];
+               h++;
+               line[4] = datarr[h];
+               h++;
+               if(j<7)
+               {
+                    j++;
+               }
+               csvWriter.writeNext(line);
+           }
+           
+           String csvString = writer.toString();
+           results = csvString;
+           //String csvString = writer.toString();
+           //System.out.println(csvWriter.toString());
+           
+           /*JSONObject obb = new JSONObject();
+           
+           
+           String col = jsonobject.get("colHeaders").toString();
+           String nobr = col.substring(1, (col.length() - 1));
+           String column[] = nobr.split(",");
+           
+           String row = jsonobject.get("rowHeaders").toString();
+           String rowbr = row.substring(1, (row.length() - 1));
+           String rowarr[] = rowbr.split(",");
+           
+           String dataj = jsonobject.get("data").toString();
+           String datarr[] = dataj.split(",");
+           int y = 0;
+           while(y < datarr.length)
+           {
+                
+                if(datarr[y].contains("["))
+                {
+                    int remove = datarr[y].indexOf("[");
+                    datarr[y] = datarr[y].substring((remove + 1));
+                    if(datarr[y].contains("["))
+                    {
+                        remove = datarr[y].indexOf("[");
+                        datarr[y] = datarr[y].substring((remove + 1));
+                    }
+                }
+                else if(datarr[y].contains("]"))
+                {
+
+                    int r = datarr[y].indexOf("]");
+                    datarr[y] = datarr[y].substring(0, r);
+                }
+                y++;
+           }
+           for(int z = 0; z < datarr.length; z++)
+           {
+             System.out.println(datarr[z]);
+           }
+           
+           int lnum = 0;
+           String line = rowarr[0];*/
+           //line[lnum]= rowarr[lnum];           
+           
+
+           
+           
+           
+        }                        
         catch(Exception e) { return e.toString(); }
         
         return results.trim();
